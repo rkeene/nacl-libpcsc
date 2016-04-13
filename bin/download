@@ -1,0 +1,30 @@
+#! /usr/bin/env bash
+
+url="$1"
+file="$2"
+hash="$3"
+
+if [ -f "${file}" ]; then
+	exit 0
+fi
+
+mkdir -p "$(dirname "${file}")"
+
+hashMethod='sha256'
+
+rm -f "${file}.new"
+wget --header "X-Cache-URL: ${url}" -O "${file}.new" "http://hashcache.rkeene.org/${hashMethod}/${hash}" || \
+	wget -O "${file}.new" "${url}" || \
+	exit 1
+
+chkHash="$(openssl "${hashMethod}" "${file}.new" | sed 's@.*= *@@')"
+
+if [ "${chkHash}" != "${hash}" ]; then
+	echo "error: Checksum mismatch: Got: ${chkHash}; Expected: ${hash}" >&2
+
+	exit 1
+fi
+
+mv "${file}.new" "${file}"
+
+exit 0

@@ -1,0 +1,76 @@
+#! /usr/bin/env bash
+
+# 2b98dedbf1b314ee8bfa3ac824efabee2c9b402d
+
+ourScript="$(which "$0")"
+if ! head -3 "${ourScript}" 2>/dev/null | grep 2b98dedbf1b314ee8bfa3ac824efabee2c9b402d >/dev/null; then
+	echo "error: Unable to find ourselves" >&2
+
+	exit 1
+fi
+
+cd "$(dirname "${ourScript}")" || exit 1
+
+PATH="${PATH}:$(pwd)/bin"
+export PATH
+
+if [ -z "${NACL_SDK_ROOT}" ]; then
+	echo "error: Please set NACL_SDK_ROOT to the path of the current NaCl SDK target" >&2
+
+	exit 1
+fi
+
+if [ ! -d "${NACL_SDK_ROOT}/toolchain" ]; then
+	echo "error: Invalid NACL_SDK_ROOT, not found: ${NACL_SDK_ROOT}/toolchain" >&2
+
+	exit 1
+fi
+
+# Build "boost"
+function buildBoost() {
+	local version url pkg sha256 configure_extra
+	local archive workdir
+
+	pkg='boost'
+	version='1.57.0'
+	url="http://downloads.sourceforge.net/project/boost/boost/${version}/boost_`echo ${version} | sed 's_\._\__g'`.tar.bz2"
+	sha256='910c8c022a33ccec7f088bd65d4f14b466588dda94ba2124e78b8c57db264967'
+
+	archive="archive/${pkg}-${version}.tar.bz2"
+	workdir="workdir-${RANDOM}${RANDOM}${RANDOM}${RANDOM}.build"
+
+	download "${url}" "${archive}" "${sha256}" || return 1
+	extract "${archive}" "${workdir}" || return 1
+
+	(
+		cd "${workdir}" || exit 1
+
+		./bootstrap.sh --prefix="${instdir}" --with-python=false --show-libraries
+
+		./bootstrap.sh --prefix="${instdir}" --with-python=false --without-libraries='atomic,chrono,container,context,coroutine,date_time,exception,filesystem,graph,graph_parallel,iostreams,locale,log,math,mpi,program_options,python,random,regex,serialization,signals,system,test,thread,timer,wave' || exit 1
+
+		echo "using gcc : pnacl : ${CXX} ;" >> project-config.jam
+
+		./b2 --debug-configuration toolset=gcc-pnacl target-os=linux link=static runtime-link=static || exit 1
+
+		./bjam install | grep -v '^common.copy '
+
+		exit 0
+	) || return 1
+
+	rm -rf "${workdir}"
+
+	return 0
+}
+
+rm -rf boost.new
+instdir="$(pwd)/boost.new/boost"
+mkdir -p "${instdir}"
+
+buildBoost || exit 1
+
+rm -rf 'boost'
+mv "$(pwd)/boost.new/boost" "$(pwd)"
+rm -rf boost.new
+
+exit 0

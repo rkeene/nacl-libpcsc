@@ -1,0 +1,45 @@
+#! /usr/bin/env bash
+
+file="$1"
+directory="$2"
+
+if [ ! -f "${file}" ]; then
+	echo "error: Unable to extract \"${file}\"" >&2
+
+	exit 1
+fi
+
+rm -rf "${directory}"
+
+mkdir -p "${directory}" || exit 1
+(
+	cd "${directory}" || exit 1
+
+	case "${file}" in
+		*.tar.bz2|*.bz2)
+			bzip2 -dc | tar -xf - || exit 1
+			;;
+		*.tar.gz|*.tgz)
+			gzip -dc | tar -xf - || exit 1
+			;;
+		*.tar.xz|*.txz)
+			xz -dc | tar -xf - || exit 1
+			;;
+		*.zip)
+			cat > x.zip || exit 1
+			unzip -q x.zip || exit 1
+			rm -f x.zip
+			;;
+		*)
+			echo "error: Don't know what to do with \"${file}\"" >&2
+
+			exit 1
+			;;
+	esac
+
+	if [ -d "$(echo *)" ]; then
+		mv */* . >/dev/null 2>/dev/null
+	fi
+) < "${file}" || exit 1
+
+exit 0
