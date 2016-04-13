@@ -25,10 +25,25 @@ export CFLAGS CXXFLAGS CPPFLAGS
 
 all: libpcsc.a
 
-libpcsc.a:
+libpcsc.a: pcsc/Makefile pcsc/pcsc-nacl.h pcsc/pcsc_nacl_init.cc $(shell find pcsc/src -type f)
+	$(MAKE) -C pcsc
+	cp pcsc/libpcsc.a libpcsc.a.new
+	mv libpcsc.a.new libpcsc.a
 
 boost: build-boost
 	rm -rf boost
 	./build-boost
+
+clean:
+	$(MAKE) -C pcsc clean
+	rm -f libpcsc.a
+	rm -f libpcsc.a.new
+
+distclean: clean
+	rm -rf boost
+	$(MAKE) -C pcsc distclean
+
+mrproper: distclean
+	rm -rf pcsc/src
 
 .PHONY: all
