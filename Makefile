@@ -23,12 +23,20 @@ CXXFLAGS     := $(CFLAGS)
 CPPFLAGS     := $(CFLAGS)
 export CFLAGS CXXFLAGS CPPFLAGS
 
-all: libpcsc.a
+all: libpcsc.a libpcsc.h libpcsc.js
 
-libpcsc.a: pcsc/Makefile pcsc/pcsc-nacl.h pcsc/pcsc_nacl_init.cc $(shell find pcsc/src -type f) boost
+libpcsc.a: pcsc/Makefile pcsc/pcsc_nacl_init.cc $(shell find pcsc/src -type f) boost
 	$(MAKE) -C pcsc BOOST_DIR='$(shell pwd)/boost'
 	cp pcsc/libpcsc.a libpcsc.a.new
 	mv libpcsc.a.new libpcsc.a
+
+libpcsc.h: pcsc/libpcsc.h
+	cp pcsc/libpcsc.h libpcsc.h.new
+	mv libpcsc.h.new libpcsc.h
+
+libpcsc.js: pcsc/libpcsc.js
+	cp pcsc/libpcsc.js libpcsc.js.new
+	mv libpcsc.js.new libpcsc.js
 
 boost: build-boost
 	rm -rf boost
@@ -36,8 +44,9 @@ boost: build-boost
 
 clean:
 	$(MAKE) -C pcsc clean
-	rm -f libpcsc.a
-	rm -f libpcsc.a.new
+	rm -f libpcsc.a libpcsc.a.new
+	rm -f libpcsc.h libpcsc.h.new
+	rm -f libpcsc.js libpcsc.js.new
 	rm -rf workdir-*
 	rm -rf boost.new
 
