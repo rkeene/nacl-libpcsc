@@ -51,6 +51,11 @@ if (naclModuleMessageChannel == null && opt_naclElement != null) { var logger = 
 if (!typedMessage) { return; }
 		' common/js/src/nacl-module/nacl-module-messaging-channel.js
 
+		## Returning a null logger breaks several things apparently
+		sed -i '
+			s@return null;@var logger = goog.debug.LogManager.getLogger(name); logger.setLevel(goog.debug.Logger.Level.INFO); return(logger);@
+		' third_party/closure-library/src-20160208/closure/goog/log/log.js
+
 		# Copy out JavaScript files for later use
 		rm -f "${instdir}/libpcsc.js"
 		files=(
