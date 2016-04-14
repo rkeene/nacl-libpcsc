@@ -41,7 +41,7 @@ function assemblePCSC() {
 		sed -i '
 			s@naclModuleMessageChannel.*opt_serverAppId@&, opt_naclElement@
 			/opt_naclElement/ a \
-if (naclModuleMessageChannel == null && opt_naclElement != null) { naclModuleMessageChannel = new GoogleSmartCard.NaclModuleMessageChannel(opt_naclElement, GoogleSmartCard.Logging.getScopedLogger("NaclModule<>")); }
+if (naclModuleMessageChannel == null && opt_naclElement != null) { var logger = new GoogleSmartCard.Logging.getScopedLogger("NaclModule<>"); naclModuleMessageChannel = new GoogleSmartCard.NaclModuleMessageChannel(opt_naclElement, logger)); new GoogleSmartCard.NaclModuleLogMessagesReceiver(naclModuleMessageChannel, logger); }
 		' third_party/pcsc-lite/naclport/cpp_client/src/nacl-client-backend.js
 
 		## Do not log errors parsing messages -- not all of them are intended for you !
