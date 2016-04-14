@@ -1,0 +1,10 @@
+boost
+archive
+workdir-*
+pcsc/src
+pcsc/*.o
+libpcsc.a
+libpcsc.h
+libpcsc.js
+pcsc/Makefile.deps
+pcsc/libpcsc.a
