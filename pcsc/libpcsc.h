@@ -4,7 +4,7 @@
 #include <ppapi/cpp/core.h>
 #include <ppapi/cpp/instance.h>
 
-void pcscNaClInit(pp::Instance *instance, pp::Core *core, const char *smartcardManagerAppId, const char *clientId);
+void pcscNaClInit(pp::Instance *instance, pp::Core *core);
 bool pcscNaClHandleMessage(const pp::Var &message);
 
 #endif
