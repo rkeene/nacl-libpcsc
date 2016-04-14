@@ -36,12 +36,20 @@ function assemblePCSC() {
 		mkdir -p "${instdir}/include/PCSC" || exit 1
 		cp third_party/pcsc-lite/src-*/src/PCSC/*.h "${instdir}/include/PCSC" || exit 1
 
-		# Update one of the JavaScript files to provide a better interface
+		# Update some of the JavaScript files to provide a better interface
+		## Create a message channel if one is not present
 		sed -i '
 			s@naclModuleMessageChannel.*opt_serverAppId@&, opt_naclElement@
 			/opt_naclElement/ a \
 if (naclModuleMessageChannel == null && opt_naclElement != null) { naclModuleMessageChannel = new GoogleSmartCard.NaclModuleMessageChannel(opt_naclElement, GoogleSmartCard.Logging.getScopedLogger("NaclModule<>")); }
 		' third_party/pcsc-lite/naclport/cpp_client/src/nacl-client-backend.js
+
+		## Do not log errors parsing messages -- not all of them are intended for you !
+		sed -i '
+			/if (!typedMessage)/,/}$/ d
+			/parseTypedMessage/ a \
+if (!typedMessage) { return; }
+		' common/js/src/nacl-module/nacl-module-messaging-channel.js
 
 		# Copy out JavaScript files for later use
 		rm -f "${instdir}/libpcsc.js"
