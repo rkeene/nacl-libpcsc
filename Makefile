@@ -55,8 +55,8 @@ install: libpcsc.a libpcsc.h libpcsc.js $(shell find pcsc/src/include -type f)
 	cp libpcsc.js "$(DESTDIR)$(prefix)/js"
 	cp -r pcsc/src/include/PCSC "$(DESTDIR)$(prefix)/include"
 
-clean:
-	$(MAKE) -C pcsc clean
+clean: boost
+	$(MAKE) -C pcsc BOOST_DIR='$(shell pwd)/boost' clean
 	rm -f libpcsc.a libpcsc.a.new
 	rm -f libpcsc.h libpcsc.h.new
 	rm -f libpcsc.js libpcsc.js.new
@@ -65,7 +65,8 @@ clean:
 
 distclean: clean
 	rm -rf boost
-	$(MAKE) -C pcsc distclean
+	rm -f archive/boost-*.tar.bz2*
+	$(MAKE) -C pcsc BOOST_DIR='$(shell pwd)/boost' distclean
 
 mrproper: distclean
 	rm -rf pcsc/src
