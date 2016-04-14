@@ -1,4 +1,4 @@
-BOOST_DIR := /usr/include/boost
+BOOST_DIR := /usr
 CFLAGS    += -Wall -std=gnu11 -g3 -ggdb3
 CXXFLAGS  += -Wall -std=gnu++11 -g3 -ggdb3
 CPPFLAGS  += -Isrc/include/PCSC -isystem $(BOOST_DIR)/include -Isrc -isystem $(NACL_SDK_ROOT)/include
