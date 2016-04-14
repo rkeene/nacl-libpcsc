@@ -37,7 +37,7 @@ function assemblePCSC() {
 		cp third_party/pcsc-lite/src-*/src/PCSC/*.h "${instdir}/include/PCSC" || exit 1
 
 		# Update one of the JavaScript files to provide a better interface
-		sed '
+		sed -i '
 			s@naclModuleMessageChannel.*opt_serverAppId@&, opt_naclElement@
 			/opt_naclElement/ a \
 if (naclModuleMessageChannel == null && opt_naclElement != null) { naclModuleMessageChannel = new GoogleSmartCard.NaclModuleMessageChannel(opt_naclElement, GoogleSmartCard.Logging.getScopedLogger("NaclModule<>")); }
@@ -145,7 +145,7 @@ if (naclModuleMessageChannel == null && opt_naclElement != null) { naclModuleMes
 			/^ *goog\.require(/ d;
 			s@^goog\.DEPENDENCIES_ENABLED = .*$@goog.DEPENDENCIES_ENABLED = false;@
 		' > "${instdir}/libpcsc.js.new" || exit 1
-		mv "${instdir}/libpcsc.js.new" "${isntdir}/libpcsc.js" || exit 1
+		mv "${instdir}/libpcsc.js.new" "${instdir}/libpcsc.js" || exit 1
 
 		# Assemble all the files into a single tree
 		files=(
