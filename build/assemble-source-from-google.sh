@@ -42,10 +42,75 @@ function assemblePCSC() {
 #		cp third_party/pcsc-lite/client-side/*.js "${instdir}/js" || exit 1
 
 		# Assemble all the files into a single tree
-		for file in logging.h scard_structs_serialization.h dom_requests_manager.h thread_safe_string_pool.h \
-		    pp_var_utils.cc pp_var_utils.h scard_structs_serialization.cc dom_requests_manager.cc logging.cc; do
-			find . -type f -name "${file}" -exec cp '{}' "${instdir}" ';'
+		files=(
+			common/cpp/src/google_smart_card_common/formatting.h
+			common/cpp/src/google_smart_card_common/logging/function_call_tracer.cc
+			common/cpp/src/google_smart_card_common/logging/function_call_tracer.h
+			common/cpp/src/google_smart_card_common/logging/hex_dumping.cc
+			common/cpp/src/google_smart_card_common/logging/hex_dumping.h
+			common/cpp/src/google_smart_card_common/logging/logging.cc
+			common/cpp/src/google_smart_card_common/logging/logging.h
+			common/cpp/src/google_smart_card_common/logging/mask_dumping.h
+			common/cpp/src/google_smart_card_common/messaging/message_listener.h
+			common/cpp/src/google_smart_card_common/messaging/typed_message.cc
+			common/cpp/src/google_smart_card_common/messaging/typed_message.h
+			common/cpp/src/google_smart_card_common/messaging/typed_message_listener.h
+			common/cpp/src/google_smart_card_common/messaging/typed_message_router.cc
+			common/cpp/src/google_smart_card_common/messaging/typed_message_router.h
+			common/cpp/src/google_smart_card_common/multi_string.cc
+			common/cpp/src/google_smart_card_common/multi_string.h
+			common/cpp/src/google_smart_card_common/numeric_conversions.cc
+			common/cpp/src/google_smart_card_common/numeric_conversions.h
+			common/cpp/src/google_smart_card_common/optional.h
+			common/cpp/src/google_smart_card_common/pp_var_utils/construction.cc
+			common/cpp/src/google_smart_card_common/pp_var_utils/construction.h
+			common/cpp/src/google_smart_card_common/pp_var_utils/copying.cc
+			common/cpp/src/google_smart_card_common/pp_var_utils/copying.h
+			common/cpp/src/google_smart_card_common/pp_var_utils/debug_dump.cc
+			common/cpp/src/google_smart_card_common/pp_var_utils/debug_dump.h
+			common/cpp/src/google_smart_card_common/pp_var_utils/extraction.cc
+			common/cpp/src/google_smart_card_common/pp_var_utils/extraction.h
+			common/cpp/src/google_smart_card_common/pp_var_utils/operations.h
+			common/cpp/src/google_smart_card_common/pp_var_utils/struct_converter.h
+			common/cpp/src/google_smart_card_common/requesting/async_request.cc
+			common/cpp/src/google_smart_card_common/requesting/async_request.h
+			common/cpp/src/google_smart_card_common/requesting/async_requests_storage.cc
+			common/cpp/src/google_smart_card_common/requesting/async_requests_storage.h
+			common/cpp/src/google_smart_card_common/requesting/js_requester.cc
+			common/cpp/src/google_smart_card_common/requesting/js_requester.h
+			common/cpp/src/google_smart_card_common/requesting/remote_call_adaptor.cc
+			common/cpp/src/google_smart_card_common/requesting/remote_call_adaptor.h
+			common/cpp/src/google_smart_card_common/requesting/remote_call_message.cc
+			common/cpp/src/google_smart_card_common/requesting/remote_call_message.h
+			common/cpp/src/google_smart_card_common/requesting/request_id.h
+			common/cpp/src/google_smart_card_common/requesting/request_result.cc
+			common/cpp/src/google_smart_card_common/requesting/request_result.h
+			common/cpp/src/google_smart_card_common/requesting/requester.cc
+			common/cpp/src/google_smart_card_common/requesting/requester.h
+			common/cpp/src/google_smart_card_common/requesting/requester_message.cc
+			common/cpp/src/google_smart_card_common/requesting/requester_message.h
+			common/cpp/src/google_smart_card_common/thread_safe_unique_ptr.h
+			common/cpp/src/google_smart_card_common/unique_ptr_utils.h
+			third_party/pcsc-lite/naclport/common/src/google_smart_card_pcsc_lite_common/pcsc_lite.h
+			third_party/pcsc-lite/naclport/common/src/google_smart_card_pcsc_lite_common/pcsc_lite_tracing_wrapper.cc
+			third_party/pcsc-lite/naclport/common/src/google_smart_card_pcsc_lite_common/pcsc_lite_tracing_wrapper.h
+			third_party/pcsc-lite/naclport/common/src/google_smart_card_pcsc_lite_common/scard_debug_dump.cc
+			third_party/pcsc-lite/naclport/common/src/google_smart_card_pcsc_lite_common/scard_debug_dump.h
+			third_party/pcsc-lite/naclport/common/src/google_smart_card_pcsc_lite_common/scard_structs_serialization.cc
+			third_party/pcsc-lite/naclport/common/src/google_smart_card_pcsc_lite_common/scard_structs_serialization.h
+			third_party/pcsc-lite/naclport/cpp_client/src/google_smart_card_pcsc_lite_client/global.cc
+			third_party/pcsc-lite/naclport/cpp_client/src/google_smart_card_pcsc_lite_client/global.h
+			third_party/pcsc-lite/naclport/cpp_client/src/pcsc_lite_over_requester.cc
+			third_party/pcsc-lite/naclport/cpp_client/src/pcsc_lite_over_requester.h
+			third_party/pcsc-lite/src-1.8.15/src/error.c
+		)
+
+		for file in "${files[@]}"; do
+			instfile="${instdir}/$(basename "${file}")"
+
+			sed 's@<google_smart_card_pcsc_lite_client/*.*/@<@;s@<google_smart_card_common/*.*/@<@;s@<google_smart_card_pcsc_lite_common/*.*/@<@;/#include "config.h"/ d;s@#include "misc.h"@#include "winscard.h"@' "${file}" > "${instfile}" || exit 1
 		done
+
 	) || return 1
 
 	rm -rf "${workdir}"

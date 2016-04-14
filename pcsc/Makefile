@@ -1,38 +1,39 @@
-CFLAGS   += -Wall -std=gnu++11 -g3 -ggdb3
-CXXFLAGS += -Wall -std=gnu++11 -g3 -ggdb3
-CPPFLAGS += -I../src/src/PCSC
+BOOST_DIR := /usr/include/boost
+CFLAGS    += -Wall -std=gnu11 -g3 -ggdb3
+CXXFLAGS  += -Wall -std=gnu++11 -g3 -ggdb3
+CPPFLAGS  += -Isrc/include/PCSC -isystem $(BOOST_DIR)/include -Isrc -isystem $(NACL_SDK_ROOT)/include
 
-OBJS = pcsc_nacl.o pcsc_nacl_global.o scard_structs_serialization.o pp_var_utils.o logging.o dom_requests_manager.o pcsc_nacl_init.o
+OBJS += 
+# pcsc_nacl_init.o
 
 all: libpcsc.a
+
+include Makefile.deps
 
 libpcsc.a: $(OBJS)
 	rm -f libpcsc.a
 	$(AR) rc libpcsc.a $(OBJS)
 	-$(RANLIB) libpcsc.a
 
-pcsc_nacl_init.o: pcsc_nacl_init.cc pcsc_nacl_global.h dom_requests_manager.h pcsc_nacl.h
+%.o: src/%.cc
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o "$@" $(filter %.cc,$^)
 
-pcsc_nacl.o: pcsc_nacl.cc pcsc_nacl.h logging.h pp_var_utils.h scard_structs_serialization.h
-pcsc_nacl.h: dom_requests_manager.h thread_safe_string_pool.h
+%.o: src/%.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c -o "$@" $(filter %.c,$^)
 
-pcsc_nacl_global.o: pcsc_nacl_global.cc pcsc_nacl_global.h logging.h
-pcsc_nacl_global.h: pcsc_nacl.h
-
-pp_var_utils.o: pp_var_utils.cc pp_var_utils.h logging.h
-pp_var_utils.h: logging.h
-
-scard_structs_serialization.o: scard_structs_serialization.cc scard_structs_serialization.h pp_var_utils.h
-scard_structs_serialization.h: pp_var_utils.h
-
-dom_requests_manager.o: dom_requests_manager.cc dom_requests_manager.h logging.h pp_var_utils.h
-
-logging.o: logging.cc logging.h
+Makefile.deps:
+	rm -f Makefile.deps.new
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -MM src/*.cc > Makefile.deps.new
+	$(CC) $(CFLAGS) $(CPPFLAGS) -MM src/*.c >> Makefile.deps.new
+	grep ': ' Makefile.deps.new | cut -f 1 -d : | sed 's@^@OBJS += @' >> Makefile.deps.new
+	mv Makefile.deps.new Makefile.deps
 
 clean:
 	rm -f $(OBJS)
 	rm -f libpcsc.a
+	rm -f Makefile.deps.new
 
 distclean: clean
+	rm -f Makefile.deps
 
 .PHONY: all clean distclean

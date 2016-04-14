@@ -25,8 +25,8 @@ export CFLAGS CXXFLAGS CPPFLAGS
 
 all: libpcsc.a
 
-libpcsc.a: pcsc/Makefile pcsc/pcsc-nacl.h pcsc/pcsc_nacl_init.cc $(shell find pcsc/src -type f)
-	$(MAKE) -C pcsc
+libpcsc.a: pcsc/Makefile pcsc/pcsc-nacl.h pcsc/pcsc_nacl_init.cc $(shell find pcsc/src -type f) boost
+	$(MAKE) -C pcsc BOOST_DIR='$(shell pwd)/boost'
 	cp pcsc/libpcsc.a libpcsc.a.new
 	mv libpcsc.a.new libpcsc.a
 
@@ -38,6 +38,8 @@ clean:
 	$(MAKE) -C pcsc clean
 	rm -f libpcsc.a
 	rm -f libpcsc.a.new
+	rm -rf workdir-*
+	rm -rf boost.new
 
 distclean: clean
 	rm -rf boost
