@@ -37,9 +37,9 @@ function assemblePCSC() {
 		cp third_party/pcsc-lite/src-*/src/PCSC/*.h "${instdir}/include/PCSC" || exit 1
 
 		# Copy out JavaScript files for later use
-		mkdir "${instdir}/js" || exit 1
 #		cp common-utils/*.js "${instdir}/js" || exit 1
 #		cp third_party/pcsc-lite/client-side/*.js "${instdir}/js" || exit 1
+		touch "${instdir}/libpcsc.js"
 
 		# Assemble all the files into a single tree
 		files=(

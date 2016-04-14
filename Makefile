@@ -1,3 +1,7 @@
+# Prefix
+PREFIX = /usr/local
+prefix = $(PREFIX)
+
 # Setup cross-compiler toolchain
 ## Set path to include the tools
 PATH := ${PATH}:${NACL_SDK_ROOT}/toolchain/linux_pnacl/bin
@@ -34,13 +38,22 @@ libpcsc.h: pcsc/libpcsc.h
 	cp pcsc/libpcsc.h libpcsc.h.new
 	mv libpcsc.h.new libpcsc.h
 
-libpcsc.js: pcsc/libpcsc.js
-	cp pcsc/libpcsc.js libpcsc.js.new
+libpcsc.js: pcsc/src/libpcsc.js
+	cp pcsc/src/libpcsc.js libpcsc.js.new
 	mv libpcsc.js.new libpcsc.js
 
 boost: build-boost
 	rm -rf boost
 	./build-boost
+
+install: libpcsc.a libpcsc.h libpcsc.js $(shell find pcsc/src/include -type f)
+	mkdir -p "$(DESTDIR)$(prefix)/lib"
+	mkdir -p "$(DESTDIR)$(prefix)/include"
+	mkdir -p "$(DESTDIR)$(prefix)/js"
+	cp libpcsc.a "$(DESTDIR)$(prefix)/lib"
+	cp libpcsc.h "$(DESTDIR)$(prefix)/include"
+	cp libpcsc.js "$(DESTDIR)$(prefix)/js"
+	cp -r pcsc/src/include/PCSC "$(DESTDIR)$(prefix)/include"
 
 clean:
 	$(MAKE) -C pcsc clean
