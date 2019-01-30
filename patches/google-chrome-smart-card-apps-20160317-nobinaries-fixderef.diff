@@ -1,0 +1,12 @@
+diff -uNr google-chrome-smart-card-apps-20160317-nobinaries.orig/common/js/src/messaging/port-message-channel.js google-chrome-smart-card-apps-20160317-nobinaries-fixderef/common/js/src/messaging/port-message-channel.js
+--- google-chrome-smart-card-apps-20160317-nobinaries.orig/common/js/src/messaging/port-message-channel.js	2016-03-11 09:26:42.000000000 -0600
++++ google-chrome-smart-card-apps-20160317-nobinaries-fixderef/common/js/src/messaging/port-message-channel.js	2019-01-30 11:13:15.451487478 -0600
+@@ -127,6 +127,8 @@
+   if (!goog.object.containsKey(port, 'sender'))
+     return null;
+   var sender = port['sender'];
++  if (!goog.isDef(sender))
++    return null;
+   GSC.Logging.checkWithLogger(this.logger, goog.isObject(sender));
+   if (!goog.object.containsKey(sender, 'id'))
+     return null;

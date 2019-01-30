@@ -19,6 +19,7 @@ export PATH
 function assemblePCSC() {
 	local version url pkg sha256
 	local archive workdir
+	local patchfile
 
 	pkg='google-chrome-smart-card-apps'
 	version='20160317'
@@ -26,8 +27,19 @@ function assemblePCSC() {
 
 	archive="archive/${pkg}-${version}-nobinaries.zip"
 	workdir="workdir-${RANDOM}${RANDOM}${RANDOM}${RANDOM}.build"
+	patchdir="patches"
 
 	extract "${archive}" "${workdir}" || return 1
+
+	for patchfile in "${patchdir}"/*.diff; do
+		if [ ! -f "${patchfile}" ]; then
+			continue
+		fi
+		(
+			cd "${workdir}" || exit 1
+			patch -p1 --batch
+		) < "${patchfile}"
+	done
 
 	(
 		cd "${workdir}" || exit 1
